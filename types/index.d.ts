@@ -65,4 +65,4 @@ export declare class RegtestUtils {
     verify(txo: Unspent): Promise<void>;
     randomAddress(): string;
 }
-export {};
+export { Unspent, Transaction };
