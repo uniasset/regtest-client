@@ -208,7 +208,7 @@ function _faucetMaker(
       if (count > 0) {
         if (count >= 5) throw new Error('Missing Inputs');
         console.log('Missing Inputs, retry #' + count);
-        await sleep(randInt(150, 250));
+        await sleep(randInt(150*3, 250*3));
       }
 
       const txId = await _requester(address, value).then(
@@ -227,7 +227,7 @@ function _faucetMaker(
         },
       );
 
-      await sleep(randInt(50, 150));
+      await sleep(randInt(250, 750));
 
       const results = await self.unspents(address);
 
