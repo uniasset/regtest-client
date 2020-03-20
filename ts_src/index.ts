@@ -18,7 +18,7 @@ interface Bip32 {
 
 type DhttpResponse = Unspent[] | Request | string | number | void | null;
 
-interface Unspent {
+export interface Unspent {
   value: number;
   txId: string;
   vout: number;
@@ -45,7 +45,7 @@ interface Request {
   body?: string;
 }
 
-interface Transaction {
+export interface Transaction {
   txId: string;
   txHex: string;
   vsize: number;
