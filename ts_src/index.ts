@@ -55,7 +55,7 @@ export interface Transaction {
   outs: Output[];
 }
 
-interface RegUtilOpts {
+export interface RegUtilOpts {
   APIPASS?: string;
   APIURL?: string;
   network?: Network;
