@@ -120,7 +120,10 @@ export class RegtestUtils {
 
     return new Promise((resolve, reject): void => {
       return dhttpCallback(options, (err: Error, data: DhttpResponse) => {
-        if (err) return reject(err);
+        if (err) return reject({
+          err,
+          data,
+        });
         else return resolve(data);
       });
     });
