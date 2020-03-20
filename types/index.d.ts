@@ -52,7 +52,7 @@ export interface RegUtilOpts {
 }
 export declare class RegtestUtils {
     network: Network;
-    private log;
+    private canlog;
     private _APIURL;
     private _APIPASS;
     constructor(_opts?: RegUtilOpts);

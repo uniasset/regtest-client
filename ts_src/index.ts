@@ -69,12 +69,12 @@ let RANDOM_ADDRESS: string | undefined;
 export class RegtestUtils {
   network: Network;
 
-  private log: boolean;
+  private canlog: boolean;
   private _APIURL: string;
   private _APIPASS: string;
 
   constructor(_opts?: RegUtilOpts) {
-    this.log = (_opts && typeof _opts.log_requests !== undefined)
+    this.canlog = (_opts && typeof _opts.log_requests !== undefined)
       ? _opts.log_requests as boolean
       : false;
 
@@ -108,7 +108,7 @@ export class RegtestUtils {
 
   // use Promises
   async dhttp(options: Request): Promise<DhttpResponse> {
-    if (this.log) {
+    if (this.canlog) {
       console.log('regtest_client.dhttp() requested: ', {
         url: options.url,
         network: this.network,

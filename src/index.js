@@ -7,7 +7,7 @@ const dhttpCallback = require('dhttp/200');
 let RANDOM_ADDRESS;
 class RegtestUtils {
   constructor(_opts) {
-    this.log =
+    this.canlog =
       _opts && typeof _opts.log_requests !== undefined
         ? _opts.log_requests
         : false;
@@ -38,7 +38,7 @@ class RegtestUtils {
   }
   // use Promises
   async dhttp(options) {
-    if (this.log) {
+    if (this.canlog) {
       console.log('regtest_client.dhttp() requested: ', {
         url: options.url,
         network: this.network,
