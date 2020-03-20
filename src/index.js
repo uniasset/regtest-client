@@ -46,12 +46,11 @@ class RegtestUtils {
     }
     return new Promise((resolve, reject) => {
       return dhttpCallback(options, (err, data) => {
-        if (err)
-          return reject({
-            err,
-            data,
-          });
-        else return resolve(data);
+        if (err) {
+          console.error(err, data);
+          return reject(err);
+        }
+        return resolve(data);
       });
     });
   }
