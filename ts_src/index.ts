@@ -43,6 +43,7 @@ interface Request {
   method?: string;
   url?: string;
   body?: string;
+  self?: RegtestUtils;
 }
 
 export interface Transaction {
@@ -108,12 +109,15 @@ export class RegtestUtils {
 
   // use Promises
   async dhttp(options: Request): Promise<DhttpResponse> {
-    if (this.canlog) {
+    if (this && this.canlog ||
+      options.self && options.self.canlog) {
+
       console.log('regtest_client.dhttp() requested: ', {
         url: options.url,
         network: this.network,
       });
     }
+
     return new Promise((resolve, reject): void => {
       return dhttpCallback(options, (err: Error, data: DhttpResponse) => {
         if (err) return reject(err);
@@ -165,6 +169,7 @@ export class RegtestUtils {
       this.dhttp,
       this._APIURL,
       this._APIPASS,
+      this,
     );
     const faucet = _faucetMaker(this, requester);
     return faucet(address, value);
@@ -178,6 +183,7 @@ export class RegtestUtils {
       this.dhttp,
       this._APIURL,
       this._APIPASS,
+      this,
     );
     const faucet = _faucetMaker(this, requester);
     return faucet(outputString, value);
@@ -203,9 +209,11 @@ function _faucetRequestMaker(
   dhttp: any,
   url: string,
   pass: string,
+  utils: RegtestUtils,
 ): (address: string, value: number) => Promise<string> {
   return async (address: string, value: number): Promise<string> =>
     dhttp({
+      utils,
       method: 'POST',
       url: `${url}/r/${name}?${paramName}=${address}&value=${value}&key=${pass}`,
     }) as Promise<string>;

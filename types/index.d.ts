@@ -34,6 +34,7 @@ interface Request {
     method?: string;
     url?: string;
     body?: string;
+    self?: RegtestUtils;
 }
 export interface Transaction {
     txId: string;

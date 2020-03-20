@@ -38,7 +38,7 @@ class RegtestUtils {
   }
   // use Promises
   async dhttp(options) {
-    if (this.canlog) {
+    if ((this && this.canlog) || (options.self && options.self.canlog)) {
       console.log('regtest_client.dhttp() requested: ', {
         url: options.url,
         network: this.network,
@@ -89,6 +89,7 @@ class RegtestUtils {
       this.dhttp,
       this._APIURL,
       this._APIPASS,
+      this,
     );
     const faucet = _faucetMaker(this, requester);
     return faucet(address, value);
@@ -101,6 +102,7 @@ class RegtestUtils {
       this.dhttp,
       this._APIURL,
       this._APIPASS,
+      this,
     );
     const faucet = _faucetMaker(this, requester);
     return faucet(outputString, value);
@@ -117,9 +119,10 @@ class RegtestUtils {
   }
 }
 exports.RegtestUtils = RegtestUtils;
-function _faucetRequestMaker(name, paramName, dhttp, url, pass) {
+function _faucetRequestMaker(name, paramName, dhttp, url, pass, utils) {
   return async (address, value) =>
     dhttp({
+      utils,
       method: 'POST',
       url: `${url}/r/${name}?${paramName}=${address}&value=${value}&key=${pass}`,
     });
