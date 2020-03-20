@@ -59,7 +59,7 @@ interface RegUtilOpts {
   APIPASS?: string;
   APIURL?: string;
   network?: Network;
-  log_requests: boolean;
+  log_requests?: boolean;
 }
 
 const dhttpCallback = require('dhttp/200');
@@ -74,9 +74,13 @@ export class RegtestUtils {
   private _APIPASS: string;
 
   constructor(_opts?: RegUtilOpts) {
-    this.log = _opts ? _opts.log_requests : false;
+    this.log = (_opts && typeof _opts.log_requests !== undefined)
+      ? _opts.log_requests as boolean
+      : false;
+
     this._APIURL =
       (_opts || {}).APIURL || process.env.APIURL || 'http://127.0.0.1:8080/1';
+
     this._APIPASS = (_opts || {}).APIPASS || process.env.APIPASS || 'satoshi';
 
     // regtest network parameters

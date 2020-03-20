@@ -48,7 +48,7 @@ interface RegUtilOpts {
     APIPASS?: string;
     APIURL?: string;
     network?: Network;
-    log_requests: boolean;
+    log_requests?: boolean;
 }
 export declare class RegtestUtils {
     network: Network;
