@@ -7,21 +7,25 @@ const dhttpCallback = require('dhttp/200');
 let RANDOM_ADDRESS;
 class RegtestUtils {
   constructor(_opts) {
+    this.log = _opts ? _opts.log_requests : false;
     this._APIURL =
       (_opts || {}).APIURL || process.env.APIURL || 'http://127.0.0.1:8080/1';
     this._APIPASS = (_opts || {}).APIPASS || process.env.APIPASS || 'satoshi';
     // regtest network parameters
-    this.network = {
-      messagePrefix: '\x18Bitcoin Signed Message:\n',
-      bech32: 'bcrt',
-      bip32: {
-        public: 0x043587cf,
-        private: 0x04358394,
-      },
-      pubKeyHash: 0x6f,
-      scriptHash: 0xc4,
-      wif: 0xef,
-    };
+    this.network =
+      _opts && _opts.network
+        ? _opts.network
+        : {
+            messagePrefix: '\x18Bitcoin Signed Message:\n',
+            bech32: 'bcrt',
+            bip32: {
+              public: 0x043587cf,
+              private: 0x04358394,
+            },
+            pubKeyHash: 0x6f,
+            scriptHash: 0xc4,
+            wif: 0xef,
+          };
   }
   get RANDOM_ADDRESS() {
     if (RANDOM_ADDRESS === undefined) {
@@ -31,6 +35,12 @@ class RegtestUtils {
   }
   // use Promises
   async dhttp(options) {
+    if (this.log) {
+      console.log('regtest_client.dhttp() requested: ', {
+        url: options.url,
+        network: this.network,
+      });
+    }
     return new Promise((resolve, reject) => {
       return dhttpCallback(options, (err, data) => {
         if (err) return reject(err);
@@ -122,7 +132,7 @@ function _faucetMaker(self, _requester) {
       if (count > 0) {
         if (count >= 5) throw new Error('Missing Inputs');
         console.log('Missing Inputs, retry #' + count);
-        await sleep(randInt(150, 250));
+        await sleep(randInt(150 * 3, 250 * 3));
       }
       const txId = await _requester(address, value).then(
         v => v, // Pass success value as is
@@ -139,7 +149,7 @@ function _faucetMaker(self, _requester) {
           }
         },
       );
-      await sleep(randInt(50, 150));
+      await sleep(randInt(250, 750));
       const results = await self.unspents(address);
       _unspents = results.filter(x => x.txId === txId);
       count++;

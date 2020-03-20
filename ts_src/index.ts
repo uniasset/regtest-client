@@ -58,6 +58,8 @@ interface Transaction {
 interface RegUtilOpts {
   APIPASS?: string;
   APIURL?: string;
+  network?: Network;
+  log_requests: boolean;
 }
 
 const dhttpCallback = require('dhttp/200');
@@ -66,25 +68,31 @@ let RANDOM_ADDRESS: string | undefined;
 
 export class RegtestUtils {
   network: Network;
+
+  private log: boolean;
   private _APIURL: string;
   private _APIPASS: string;
 
   constructor(_opts?: RegUtilOpts) {
+    this.log = _opts ? _opts.log_requests : false;
     this._APIURL =
       (_opts || {}).APIURL || process.env.APIURL || 'http://127.0.0.1:8080/1';
     this._APIPASS = (_opts || {}).APIPASS || process.env.APIPASS || 'satoshi';
+
     // regtest network parameters
-    this.network = {
-      messagePrefix: '\x18Bitcoin Signed Message:\n',
-      bech32: 'bcrt',
-      bip32: {
-        public: 0x043587cf,
-        private: 0x04358394,
-      },
-      pubKeyHash: 0x6f,
-      scriptHash: 0xc4,
-      wif: 0xef,
-    };
+    this.network = (_opts && _opts.network)
+      ? _opts.network
+      : {
+        messagePrefix: '\x18Bitcoin Signed Message:\n',
+        bech32: 'bcrt',
+        bip32: {
+          public: 0x043587cf,
+          private: 0x04358394,
+        },
+        pubKeyHash: 0x6f,
+        scriptHash: 0xc4,
+        wif: 0xef,
+      };
   }
 
   get RANDOM_ADDRESS(): string {
@@ -96,6 +104,12 @@ export class RegtestUtils {
 
   // use Promises
   async dhttp(options: Request): Promise<DhttpResponse> {
+    if (this.log) {
+      console.log('regtest_client.dhttp() requested: ', {
+        url: options.url,
+        network: this.network,
+      });
+    }
     return new Promise((resolve, reject): void => {
       return dhttpCallback(options, (err: Error, data: DhttpResponse) => {
         if (err) return reject(err);
@@ -201,14 +215,14 @@ function _faucetMaker(
     let count = 0;
     let _unspents: Unspent[] = [];
     const sleep = (ms: number): Promise<void> =>
-      new Promise((resolve): number => setTimeout(resolve, ms));
+      new Promise((resolve): number => setTimeout(resolve, ms) as unknown as number);
     const randInt = (min: number, max: number): number =>
       min + Math.floor((max - min + 1) * Math.random());
     while (_unspents.length === 0) {
       if (count > 0) {
         if (count >= 5) throw new Error('Missing Inputs');
         console.log('Missing Inputs, retry #' + count);
-        await sleep(randInt(150*3, 250*3));
+        await sleep(randInt(150 * 3, 250 * 3));
       }
 
       const txId = await _requester(address, value).then(
