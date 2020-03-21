@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as rng from 'randombytes';
 const bs58check = require('bs58check');
 
-interface Network {
+export interface Network {
   messagePrefix: string;
   bech32: string;
   bip32: Bip32;

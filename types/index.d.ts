@@ -1,5 +1,5 @@
 /// <reference types="node" />
-interface Network {
+export interface Network {
     messagePrefix: string;
     bech32: string;
     bip32: Bip32;
