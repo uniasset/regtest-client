@@ -290,7 +290,7 @@ function _faucetMaker(
         },
       );
 
-      //await self.mine(1);
+      // await self.mine(1);
 
       await sleep(randInt(250, 750));
 
@@ -303,7 +303,7 @@ function _faucetMaker(
         });
       }
 
-      _unspents = results.filter(x => x.txId === txId && (x.height ? x.height >= 0 : false));
+      _unspents = results.filter(x => x.txId === txId); //  && (x.height ? x.height >= 0 : false));
 
       if (self.canlog) {
         console.log('Facetmaker: FILTERED results', {
