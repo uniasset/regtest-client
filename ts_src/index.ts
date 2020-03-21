@@ -286,6 +286,8 @@ function _faucetMaker(
         },
       );
 
+      await self.mine(1);
+
       await sleep(randInt(250, 750));
 
       const results = await self.unspents(address);
