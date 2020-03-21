@@ -74,7 +74,6 @@ export class RegtestUtils {
   private _APIURL: string;
   private _APIPASS: string;
 
-
   constructor(_opts?: RegUtilOpts) {
     this.canlog = (_opts && typeof _opts.log_requests !== undefined)
       ? _opts.log_requests as boolean
@@ -124,7 +123,7 @@ export class RegtestUtils {
     return new Promise((resolve, reject): void => {
       return dhttpCallback(options, (err: Error, data: DhttpResponse) => {
         if (err) {
-          console.error('dhttp callback recevied error from server', {
+          console.error('dhttp callback received error from server', {
             url: options.url,
             network: self ? self.network : undefined,
             err,
@@ -298,7 +297,7 @@ function _faucetMaker(
         });
       }
 
-      _unspents = results.filter(x => x.txId === txId);
+      _unspents = results.filter(x => x.txId === txId && (x.height ? x.height >= 0 : false));
 
       if (self.canlog) {
         console.log('Facetmaker: FILTERED results', {

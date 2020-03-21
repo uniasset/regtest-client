@@ -48,7 +48,7 @@ class RegtestUtils {
     return new Promise((resolve, reject) => {
       return dhttpCallback(options, (err, data) => {
         if (err) {
-          console.error('dhttp callback recevied error from server', {
+          console.error('dhttp callback received error from server', {
             url: options.url,
             network: self ? self.network : undefined,
             err,
@@ -180,7 +180,9 @@ function _faucetMaker(self, _requester) {
           results,
         });
       }
-      _unspents = results.filter(x => x.txId === txId);
+      _unspents = results.filter(
+        x => x.txId === txId && (x.height ? x.height >= 0 : false),
+      );
       if (self.canlog) {
         console.log('Facetmaker: FILTERED results', {
           len: _unspents.length,
