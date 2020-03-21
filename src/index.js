@@ -44,10 +44,16 @@ class RegtestUtils {
         network: this.network,
       });
     }
+    const self = this ? this : options.self;
     return new Promise((resolve, reject) => {
       return dhttpCallback(options, (err, data) => {
         if (err) {
-          console.error(err, data);
+          console.error('dhttp callback recevied error from server', {
+            url: options.url,
+            network: self ? self.network : undefined,
+            err,
+            response_data: data,
+          });
           return reject(err);
         }
         return resolve(data);
@@ -128,6 +134,7 @@ function _faucetRequestMaker(name, paramName, dhttp, url, pass, utils) {
       utils,
       method: 'POST',
       url: `${url}/r/${name}?${paramName}=${address}&value=${value}&key=${pass}`,
+      self: utils,
     });
 }
 function _faucetMaker(self, _requester) {
@@ -149,18 +156,37 @@ function _faucetMaker(self, _requester) {
           // Bad Request error is fixed by making sure height is >= 432
           const currentHeight = await self.height();
           if (err.message === 'Bad Request' && currentHeight < 432) {
+            if (self.canlog) {
+              console.log('Facetmaker: waiting to mine up to 432 block');
+            }
             await self.mine(432 - currentHeight);
             return _requester(address, value);
-          } else if (err.message === 'Bad Request' && currentHeight >= 432) {
-            return _requester(address, value);
-          } else {
-            throw err;
           }
+          if (err.message === 'Bad Request' && currentHeight >= 432) {
+            if (self.canlog) {
+              console.log('Facetmaker: done mining up to 432 block');
+            }
+            return _requester(address, value);
+          }
+          console.error('Facetmaker error', err);
+          throw err;
         },
       );
       await sleep(randInt(250, 750));
       const results = await self.unspents(address);
+      if (self.canlog) {
+        console.log('Facetmaker: UNfiltered results', {
+          len: results.length,
+          results,
+        });
+      }
       _unspents = results.filter(x => x.txId === txId);
+      if (self.canlog) {
+        console.log('Facetmaker: FILTERED results', {
+          len: _unspents.length,
+          _unspents,
+        });
+      }
       count++;
     }
     return _unspents.pop();

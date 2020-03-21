@@ -69,10 +69,11 @@ let RANDOM_ADDRESS: string | undefined;
 
 export class RegtestUtils {
   network: Network;
+  canlog: boolean;
 
-  private canlog: boolean;
   private _APIURL: string;
   private _APIPASS: string;
+
 
   constructor(_opts?: RegUtilOpts) {
     this.canlog = (_opts && typeof _opts.log_requests !== undefined)
@@ -118,10 +119,17 @@ export class RegtestUtils {
       });
     }
 
+    const self = this ? this : options.self;
+
     return new Promise((resolve, reject): void => {
       return dhttpCallback(options, (err: Error, data: DhttpResponse) => {
         if (err) {
-          console.error(err, data);
+          console.error('dhttp callback recevied error from server', {
+            url: options.url,
+            network: self ? self.network : undefined,
+            err,
+            response_data: data,
+          });
           return reject(err);
         }
 
@@ -220,6 +228,7 @@ function _faucetRequestMaker(
       utils,
       method: 'POST',
       url: `${url}/r/${name}?${paramName}=${address}&value=${value}&key=${pass}`,
+      self: utils,
     }) as Promise<string>;
 }
 
@@ -227,14 +236,20 @@ function _faucetMaker(
   self: RegtestUtils,
   _requester: (address: string, value: number) => Promise<string>,
 ): (address: string, value: number) => Promise<Unspent> {
+
   return async (address: string, value: number): Promise<Unspent> => {
+
     let count = 0;
     let _unspents: Unspent[] = [];
+
     const sleep = (ms: number): Promise<void> =>
       new Promise((resolve): number => setTimeout(resolve, ms) as unknown as number);
+
     const randInt = (min: number, max: number): number =>
       min + Math.floor((max - min + 1) * Math.random());
+
     while (_unspents.length === 0) {
+
       if (count > 0) {
         if (count >= 5) throw new Error('Missing Inputs');
         console.log('Missing Inputs, retry #' + count);
@@ -246,14 +261,29 @@ function _faucetMaker(
         async err => {
           // Bad Request error is fixed by making sure height is >= 432
           const currentHeight = (await self.height()) as number;
+
           if (err.message === 'Bad Request' && currentHeight < 432) {
+
+            if (self.canlog) {
+              console.log('Facetmaker: waiting to mine up to 432 block');
+            }
+
             await self.mine(432 - currentHeight);
             return _requester(address, value);
-          } else if (err.message === 'Bad Request' && currentHeight >= 432) {
-            return _requester(address, value);
-          } else {
-            throw err;
           }
+
+          if (err.message === 'Bad Request' && currentHeight >= 432) {
+
+            if (self.canlog) {
+              console.log('Facetmaker: done mining up to 432 block');
+            }
+
+            return _requester(address, value);
+          }
+
+          console.error('Facetmaker error', err);
+          throw err;
+
         },
       );
 
@@ -261,7 +291,21 @@ function _faucetMaker(
 
       const results = await self.unspents(address);
 
+      if (self.canlog) {
+        console.log('Facetmaker: UNfiltered results', {
+          len: results.length,
+          results,
+        });
+      }
+
       _unspents = results.filter(x => x.txId === txId);
+
+      if (self.canlog) {
+        console.log('Facetmaker: FILTERED results', {
+          len: _unspents.length,
+          _unspents,
+        });
+      }
 
       count++;
     }
