@@ -249,8 +249,12 @@ function _faucetMaker(
 
     while (_unspents.length === 0) {
 
+      const N: number = 50;
+      if (count >= N) {
+        throw new Error('Missing Inputs after ' + N + ' attempts');
+      };
+
       if (count > 0) {
-        if (count >= 5) throw new Error('Missing Inputs');
         console.log('Missing Inputs, retry #' + count);
         await sleep(randInt(150 * 3, 250 * 3));
       }
@@ -286,7 +290,7 @@ function _faucetMaker(
         },
       );
 
-      await self.mine(1);
+      //await self.mine(1);
 
       await sleep(randInt(250, 750));
 

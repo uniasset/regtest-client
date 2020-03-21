@@ -145,8 +145,11 @@ function _faucetMaker(self, _requester) {
     const randInt = (min, max) =>
       min + Math.floor((max - min + 1) * Math.random());
     while (_unspents.length === 0) {
+      const N = 50;
+      if (count >= N) {
+        throw new Error('Missing Inputs after ' + N + ' attempts');
+      }
       if (count > 0) {
-        if (count >= 5) throw new Error('Missing Inputs');
         console.log('Missing Inputs, retry #' + count);
         await sleep(randInt(150 * 3, 250 * 3));
       }
@@ -172,7 +175,7 @@ function _faucetMaker(self, _requester) {
           throw err;
         },
       );
-      await self.mine(1);
+      //await self.mine(1);
       await sleep(randInt(250, 750));
       const results = await self.unspents(address);
       if (self.canlog) {
