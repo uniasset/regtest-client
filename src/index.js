@@ -38,13 +38,13 @@ class RegtestUtils {
   }
   // use Promises
   async dhttp(options) {
-    if ((this && this.canlog) || (options.self && options.self.canlog)) {
+    const self = this ? this : options.self;
+    if (self && self.canlog) {
       console.log('regtest_client.dhttp() requested: ', {
         url: options.url,
-        network: this.network,
+        network: self.network,
       });
     }
-    const self = this ? this : options.self;
     return new Promise((resolve, reject) => {
       return dhttpCallback(options, (err, data) => {
         if (err) {
