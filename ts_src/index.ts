@@ -210,7 +210,8 @@ export class RegtestUtils {
 
   randomAddress(): string {
     // Fake P2PKH address with regtest/testnet version byte
-    return bs58check.encode(Buffer.concat([Buffer.from([0x6f]), rng(20)]));
+    //    return bs58check.encode(Buffer.concat([Buffer.from([0x6f]), rng(20)]));
+    return bs58check.encode(Buffer.concat([Buffer.from([this.network.pubKeyHash]), rng(20)]));
   }
 }
 
