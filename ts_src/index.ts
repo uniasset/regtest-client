@@ -256,7 +256,7 @@ function _faucetMaker(
       };
 
       if (count > 0) {
-        console.log('Missing Inputs, retry #' + count);
+        // console.log('Missing Inputs, retry #' + count);
         await sleep(randInt(150 * 3, 250 * 3));
       }
 
