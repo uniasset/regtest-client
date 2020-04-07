@@ -264,15 +264,19 @@ function _faucetMaker(
         v => v, // Pass success value as is
         async err => {
           // Bad Request error is fixed by making sure height is >= 432
-          const currentHeight = (await self.height()) as number;
+          // const currentHeight = (await self.height()) as number;
 
-          if (err.message === 'Bad Request' && currentHeight < 432) {
+          if (err.message === 'Bad Request') {
+            return _requester(address, value);
+          }
+
+          /*if (err.message === 'Bad Request' && currentHeight < 432) {
 
             if (self.canlog) {
               console.log('Facetmaker: waiting to mine up to 432 block');
             }
 
-            await self.mine(432 - currentHeight);
+            //await self.mine(432 - currentHeight);
             return _requester(address, value);
           }
 
@@ -283,7 +287,7 @@ function _faucetMaker(
             }
 
             return _requester(address, value);
-          }
+          }*/
 
           console.error('Facetmaker error', err);
           throw err;
