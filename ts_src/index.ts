@@ -253,7 +253,7 @@ function _faucetMaker(
       const N: number = 50;
       if (count >= N) {
         throw new Error('Missing Inputs after ' + N + ' attempts');
-      };
+      }
 
       if (count > 0) {
         // console.log('Missing Inputs, retry #' + count);
